@@ -15,6 +15,32 @@ const REDDIT_CLIENT_SECRET = process.env.REDDIT_CLIENT_SECRET || "";
 const REDDIT_USERNAME = process.env.REDDIT_USERNAME || "";
 const REDDIT_PASSWORD = process.env.REDDIT_PASSWORD || "";
 
+interface RedditPost {
+  kind: string;
+  data: {
+    title: string;
+    permalink: string;
+    score: number;
+    selftext: string;
+    id: string;
+  };
+}
+
+interface RedditResponse {
+  data: {
+    children: RedditPost[];
+  };
+}
+
+interface Topic {
+  title: string;
+  url: string;
+  subreddit: string;
+  score: number;
+  selftext: string;
+  id: string;
+}
+
 function getRandomItems<T>(arr: T[], count: number): T[] {
   const shuffled = arr.slice().sort(() => 0.5 - Math.random());
   return shuffled.slice(0, count);
@@ -74,12 +100,12 @@ async function getComments(subreddit: string, postId: string, accessToken: strin
 
 async function getRandomTopics() {
   const accessToken = await getRedditAccessToken();
-  const topics = [];
+  const topics: Topic[] = [];
 
   for (const sub of SUBREDDITS) {
     try {
       const url = `https://oauth.reddit.com/r/${sub}/rising.json?limit=50`;
-      const res = await axios.get(url, {
+      const res = await axios.get<RedditResponse>(url, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
           "User-Agent": `script:BlogGenerator:v1.0 (by /u/${REDDIT_USERNAME})`,
@@ -87,11 +113,11 @@ async function getRandomTopics() {
       });
 
       const posts = res.data.data?.children || [];
-      const filteredPosts = posts.filter((p: any) => p.data?.title && p.data.title.length > 15);
+      const filteredPosts = posts.filter((p: RedditPost) => p.data?.title && p.data.title.length > 15);
 
       if (filteredPosts.length === 0) continue;
 
-      const [randomPost] = getRandomItems(filteredPosts, 1);
+      const [randomPost] = getRandomItems<RedditPost>(filteredPosts, 1);
 
       topics.push({
         title: randomPost.data.title.trim(),
@@ -201,48 +227,47 @@ Return the response as a JSON object with this structure:
 }
 
 async function generateImageWithGemini(promptText: string): Promise<string> {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-        console.error("Missing GEMINI_API_KEY");
-        return "";
-    }
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    console.error("Missing GEMINI_API_KEY");
+    return "";
+  }
 
-    const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-preview-image-generation:generateContent";
+  const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-preview-image-generation:generateContent";
 
-    const headers = {
-        "x-goog-api-key": apiKey,
-        "Content-Type": "application/json",
-    };
+  const headers = {
+    "x-goog-api-key": apiKey,
+    "Content-Type": "application/json",
+  };
 
-    const body = {
-        contents: [
-            {
-                parts: [
-                    { text: promptText },
-                ],
-            },
+  const body = {
+    contents: [
+      {
+        parts: [
+          { text: promptText },
         ],
-        generationConfig: {
-            responseModalities: ["TEXT", "IMAGE"],
-        },
-    };
+      },
+    ],
+    generationConfig: {
+      responseModalities: ["TEXT", "IMAGE"],
+    },
+  };
 
-    try {
-        const response = await axios.post(url, body, { headers });
-        const imageData = response.data?.candidates?.[0]?.content?.parts?.find((part: any) => part.inlineData)?.inlineData?.data;
+  try {
+    const response = await axios.post(url, body, { headers });
+    const imageData = response.data?.candidates?.[0]?.content?.parts?.find((part: any) => part.inlineData)?.inlineData?.data;
 
-        if (imageData) {
-            return `data:image/png;base64,${imageData}`;
-        } else {
-            console.error("No image data in Gemini response:", response.data);
-            return "";
-        }
-    } catch (error: any) {
-        console.error("Failed to generate image via Gemini API:", error.response?.data || error.message);
-        return "";
+    if (imageData) {
+      return `data:image/png;base64,${imageData}`;
+    } else {
+      console.error("No image data in Gemini response:", response.data);
+      return "";
     }
+  } catch (error: any) {
+    console.error("Failed to generate image via Gemini API:", error.response?.data || error.message);
+    return "";
+  }
 }
-
 
 async function saveBlog(blogData: { title: string; metaDescription: string; content: string; image: string; topic: string }) {
   try {
