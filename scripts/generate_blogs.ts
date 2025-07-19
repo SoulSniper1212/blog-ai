@@ -93,13 +93,16 @@ async function getRandomTopics() {
 
       const [randomPost] = getRandomItems(filteredPosts, 1);
 
+      // Type assertion to fix TS error
+      const post = randomPost as { data: { title: string; permalink: string; score: number; selftext?: string; id: string } };
+
       topics.push({
-        title: randomPost.data.title.trim(),
-        url: `https://www.reddit.com${randomPost.data.permalink}`,
+        title: post.data.title.trim(),
+        url: `https://www.reddit.com${post.data.permalink}`,
         subreddit: sub,
-        score: randomPost.data.score,
-        selftext: randomPost.data.selftext || "",
-        id: randomPost.data.id,
+        score: post.data.score,
+        selftext: post.data.selftext || "",
+        id: post.data.id,
       });
     } catch (error: any) {
       console.error(`Failed to fetch hot posts from r/${sub}:`, error.response?.data || error.message);
