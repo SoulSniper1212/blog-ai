@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Blog } from "../types";
 
 interface BlogCardProps {
@@ -11,9 +12,11 @@ const BlogCard: React.FC<BlogCardProps> = ({ blog }) => {
     <article className="group relative bg-white rounded-2xl shadow-sm ring-1 ring-gray-200 hover:shadow-lg transition-all duration-300 overflow-hidden">
       <Link href={`/blog/${blog.id}`} className="block">
         <div className="aspect-[16/10] overflow-hidden">
-          <img
+          <Image
             src={blog.image || "/file.svg"}
             alt={blog.title}
+            width={400}
+            height={250}
             className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />

@@ -10,7 +10,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -21,5 +21,8 @@ model Blog {
   content         String
   image           String?
   topic           String
+  isArchived      Boolean  @default(false)
+  isPrivate       Boolean  @default(false)
   createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now())
 }

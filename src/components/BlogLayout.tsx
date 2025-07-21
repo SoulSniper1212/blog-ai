@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Blog } from "../types";
 import Navigation from "./Navigation";
 
@@ -24,10 +25,11 @@ const BlogLayout: React.FC<BlogLayoutProps> = ({ blog }) => {
       {/* Hero Section */}
       <div className="relative w-full bg-white shadow-lg mb-0">
         <div className="absolute inset-0">
-          <img 
+          <Image 
             src={blog.image || "/file.svg"} 
             alt={blog.title} 
-            className="w-full h-full object-cover object-center"
+            fill
+            className="object-cover object-center"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
         </div>
@@ -72,77 +74,244 @@ const BlogLayout: React.FC<BlogLayoutProps> = ({ blog }) => {
           ))}
         </select>
       </div>
-      {/* Article Content */}
-      <div className={`w-full px-2 sm:px-4 md:px-8 lg:px-16 xl:px-32 py-16`}> 
-        <article className={`prose max-w-none text-gray-900 ${fontSizeClass} custom-prose`}> 
-          <div 
-            dangerouslySetInnerHTML={{ __html: blog.content }}
-          />
-        </article>
-        <div className="mt-16 pt-8 border-t border-gray-200 flex items-center justify-between">
-          <div className="flex items-center text-sm text-gray-500">
-            <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
-            </svg>
-            {new Date(blog.createdAt).toLocaleDateString('en-US', { 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit'
-            })}
+      {/* Article Content - Centered and Professional */}
+      <div className="w-full flex justify-center py-16">
+        <div className="max-w-4xl w-full px-4 sm:px-6 lg:px-8">
+          <article className={`prose prose-lg max-w-none text-gray-800 ${fontSizeClass} article-content`}> 
+            <div 
+              dangerouslySetInnerHTML={{ __html: blog.content }}
+              className="article-body"
+            />
+          </article>
+          <div className="mt-16 pt-8 border-t border-gray-200 flex items-center justify-between">
+            <div className="flex items-center text-sm text-gray-500">
+              <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+              </svg>
+              {new Date(blog.createdAt).toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              })}
+            </div>
+            <Link 
+              href="/" 
+              className="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors duration-200"
+            >
+              <svg className="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              Back to All Articles
+            </Link>
           </div>
-          <Link 
-            href="/" 
-            className="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors duration-200"
-          >
-            <svg className="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Back to All Articles
-          </Link>
         </div>
       </div>
-      {/* Custom Prose Styles for Best Spacing */}
+      {/* Enhanced Article Styles for Professional Typography */}
       <style jsx global>{`
-        .custom-prose {
-          line-height: 1.8;
+        .article-content {
+          font-family: 'Georgia', 'Times New Roman', serif;
+          line-height: 1.75;
           letter-spacing: 0.01em;
-          /* Remove max-width for full-bleed effect */
-          max-width: none !important;
+          color: #1f2937;
         }
-        .custom-prose p {
+        
+        .article-body {
+          text-align: justify;
+          hyphens: auto;
+          word-break: break-word;
+        }
+        
+        .article-content p {
           margin-top: 0;
-          margin-bottom: 2em;
+          margin-bottom: 1.75em;
+          text-indent: 0;
+          text-align: left;
+          max-width: 100%;
         }
-        .custom-prose h1, .custom-prose h2, .custom-prose h3, .custom-prose h4 {
+        
+        .article-content h1, 
+        .article-content h2, 
+        .article-content h3, 
+        .article-content h4 {
+          font-family: 'Georgia', 'Times New Roman', serif;
           margin-top: 2.5em;
-          margin-bottom: 1.2em;
-          line-height: 1.25;
+          margin-bottom: 1em;
+          line-height: 1.3;
+          font-weight: 700;
+          color: #111827;
+          text-align: left;
         }
-        .custom-prose ul, .custom-prose ol {
+        
+        .article-content h1 {
+          font-size: 2.25em;
+          margin-top: 0;
+          margin-bottom: 1em;
+        }
+        
+        .article-content h2 {
+          font-size: 1.875em;
+          margin-top: 2.5em;
+          margin-bottom: 0.75em;
+        }
+        
+        .article-content h3 {
+          font-size: 1.5em;
+          margin-top: 2em;
+          margin-bottom: 0.75em;
+        }
+        
+        .article-content h4 {
+          font-size: 1.25em;
+          margin-top: 1.75em;
+          margin-bottom: 0.5em;
+        }
+        
+        .article-content ul, 
+        .article-content ol {
           margin-top: 1.5em;
-          margin-bottom: 2em;
-        }
-        .custom-prose img {
-          margin-top: 2em;
-          margin-bottom: 2em;
-          border-radius: 1em;
-        }
-        .custom-prose blockquote {
-          margin-top: 2em;
-          margin-bottom: 2em;
+          margin-bottom: 1.75em;
           padding-left: 1.5em;
-          border-left: 4px solid #3b82f6;
-          color: #64748b;
-          font-style: italic;
-          background: #f8fafc;
+          text-align: left;
         }
+        
+        .article-content li {
+          margin-bottom: 0.5em;
+          line-height: 1.6;
+        }
+        
+        .article-content blockquote {
+          margin: 2em 0;
+          padding: 1.5em 2em;
+          border-left: 4px solid #3b82f6;
+          background: #f8fafc;
+          font-style: italic;
+          color: #4b5563;
+          border-radius: 0 8px 8px 0;
+          font-size: 1.1em;
+          line-height: 1.6;
+        }
+        
+        .article-content a {
+          color: #2563eb;
+          text-decoration: underline;
+          text-decoration-thickness: 1px;
+          text-underline-offset: 2px;
+        }
+        
+        .article-content a:hover {
+          color: #1d4ed8;
+          text-decoration-thickness: 2px;
+        }
+        
+        .article-content strong {
+          font-weight: 700;
+          color: #111827;
+        }
+        
+        .article-content em {
+          font-style: italic;
+          color: #374151;
+        }
+        
+        .article-content code {
+          background: #f3f4f6;
+          padding: 0.125em 0.25em;
+          border-radius: 0.25em;
+          font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+          font-size: 0.875em;
+        }
+        
+        .article-content pre {
+          background: #1f2937;
+          color: #f9fafb;
+          padding: 1.5em;
+          border-radius: 0.5em;
+          overflow-x: auto;
+          margin: 2em 0;
+        }
+        
+        .article-content pre code {
+          background: none;
+          padding: 0;
+          color: inherit;
+        }
+        
+        .article-content img {
+          margin: 2em auto;
+          border-radius: 0.5em;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+          max-width: 100%;
+          height: auto;
+          display: block;
+        }
+        
+        .article-content hr {
+          margin: 3em 0;
+          border: none;
+          border-top: 1px solid #e5e7eb;
+        }
+        
+        .article-content table {
+          width: 100%;
+          border-collapse: collapse;
+          margin: 2em 0;
+          font-size: 0.9em;
+        }
+        
+        .article-content th,
+        .article-content td {
+          border: 1px solid #e5e7eb;
+          padding: 0.75em;
+          text-align: left;
+        }
+        
+        .article-content th {
+          background: #f9fafb;
+          font-weight: 600;
+        }
+        
+        /* Responsive adjustments */
         @media (max-width: 768px) {
-          .custom-prose {
-            max-width: 100vw;
-            padding-left: 0.5em;
-            padding-right: 0.5em;
+          .article-content {
+            font-size: 1rem;
+            line-height: 1.7;
+          }
+          
+          .article-content h1 {
+            font-size: 1.875em;
+          }
+          
+          .article-content h2 {
+            font-size: 1.5em;
+          }
+          
+          .article-content h3 {
+            font-size: 1.25em;
+          }
+          
+          .article-content h4 {
+            font-size: 1.125em;
+          }
+          
+          .article-content blockquote {
+            padding: 1em 1.5em;
+            margin: 1.5em 0;
+          }
+        }
+        
+        /* Print styles */
+        @media print {
+          .article-content {
+            font-size: 12pt;
+            line-height: 1.6;
+            color: #000;
+          }
+          
+          .article-content a {
+            color: #000;
+            text-decoration: underline;
           }
         }
       `}</style>

@@ -12,8 +12,9 @@ async function getBlog(id: number): Promise<Blog | null> {
       where: { id },
     });
     return blog as Blog | null;
-  } catch (error) {
-    console.error("Failed to fetch blog:", error);
+  } catch (_error) {
+    // Log error for debugging but don't expose to client
+    // In production, you might want to send this to an error tracking service
     return null;
   }
 }

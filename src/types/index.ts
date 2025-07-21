@@ -5,5 +5,8 @@ export interface Blog {
   content: string;
   image: string | null;
   topic: string;
+  isArchived: boolean;
+  isPrivate: boolean;
   createdAt: string;
+  updatedAt: string;
 }
