@@ -42,6 +42,18 @@ export default function AdminPage() {
     isArchived: false,
     isPrivate: false
   });
+  const [newBlogForm, setNewBlogForm] = useState({
+    title: '',
+    metaDescription: '',
+    content: '',
+    image: '',
+    topic: '',
+    isArchived: false,
+    isPrivate: false
+  });
+  const [isSubmittingNewBlog, setIsSubmittingNewBlog] = useState(false);
+  const [newBlogError, setNewBlogError] = useState<string | null>(null);
+  const [newBlogSuccess, setNewBlogSuccess] = useState<string | null>(null);
 
   const loadBlogs = useCallback(async () => {
     setIsLoadingBlogs(true);
@@ -191,6 +203,42 @@ export default function AdminPage() {
       setUrlError(err.message || 'An error occurred');
     } finally {
       setIsGeneratingFromUrl(false);
+    }
+  };
+
+  const handleNewBlogSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmittingNewBlog(true);
+    setNewBlogError(null);
+    setNewBlogSuccess(null);
+    try {
+      const response = await fetch('/api/blogs', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newBlogForm),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setNewBlogSuccess('Blog created successfully!');
+        setNewBlogForm({
+          title: '',
+          metaDescription: '',
+          content: '',
+          image: '',
+          topic: '',
+          isArchived: false,
+          isPrivate: false
+        });
+        loadBlogs();
+      } else {
+        setNewBlogError(data.error || 'Failed to create blog');
+      }
+    } catch (err: any) {
+      setNewBlogError(err.message || 'An error occurred');
+    } finally {
+      setIsSubmittingNewBlog(false);
     }
   };
 
@@ -723,6 +771,104 @@ export default function AdminPage() {
                       Next
                     </button>
                   </div>
+                </div>
+              )}
+            </div>
+
+            {/* Manual Blog Creation Section */}
+            <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="w-8 h-8 bg-pink-100 rounded-lg flex items-center justify-center">
+                  <svg className="w-5 h-5 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                </div>
+                <h2 className="text-xl font-semibold text-gray-800">Write Your Own Blog</h2>
+              </div>
+              <form onSubmit={handleNewBlogSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <input
+                    type="text"
+                    placeholder="Title"
+                    value={newBlogForm.title}
+                    onChange={e => setNewBlogForm({ ...newBlogForm, title: e.target.value })}
+                    className="px-3 py-2 border border-gray-300 rounded-md"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Topic"
+                    value={newBlogForm.topic}
+                    onChange={e => setNewBlogForm({ ...newBlogForm, topic: e.target.value })}
+                    className="px-3 py-2 border border-gray-300 rounded-md"
+                    required
+                  />
+                </div>
+                <textarea
+                  placeholder="Meta Description"
+                  value={newBlogForm.metaDescription}
+                  onChange={e => setNewBlogForm({ ...newBlogForm, metaDescription: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  rows={2}
+                  required
+                />
+                <textarea
+                  placeholder="Content (HTML)"
+                  value={newBlogForm.content}
+                  onChange={e => setNewBlogForm({ ...newBlogForm, content: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  rows={6}
+                  required
+                />
+                <input
+                  type="text"
+                  placeholder="Image URL"
+                  value={newBlogForm.image}
+                  onChange={e => setNewBlogForm({ ...newBlogForm, image: e.target.value })}
+                  className="px-3 py-2 border border-gray-300 rounded-md"
+                />
+                <div className="flex items-center space-x-4">
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={newBlogForm.isArchived}
+                      onChange={e => setNewBlogForm({ ...newBlogForm, isArchived: e.target.checked })}
+                      className="mr-2"
+                    />
+                    Archived
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={newBlogForm.isPrivate}
+                      onChange={e => setNewBlogForm({ ...newBlogForm, isPrivate: e.target.checked })}
+                      className="mr-2"
+                    />
+                    Private
+                  </label>
+                </div>
+                <button
+                  type="submit"
+                  disabled={isSubmittingNewBlog}
+                  className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                    isSubmittingNewBlog
+                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      : 'bg-pink-600 text-white hover:bg-pink-700'
+                  }`}
+                >
+                  {isSubmittingNewBlog ? 'Submitting...' : 'Publish Blog'}
+                </button>
+              </form>
+              {newBlogError && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mt-4">
+                  <h3 className="text-red-800 font-medium">Error</h3>
+                  <p className="text-red-600 mt-1">{newBlogError}</p>
+                </div>
+              )}
+              {newBlogSuccess && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mt-4">
+                  <h3 className="text-green-800 font-medium">Success</h3>
+                  <p className="text-green-600 mt-1">{newBlogSuccess}</p>
                 </div>
               )}
             </div>
