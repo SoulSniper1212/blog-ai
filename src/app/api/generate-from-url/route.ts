@@ -1,5 +1,6 @@
 export const maxDuration = 240;
 import { NextRequest, NextResponse } from 'next/server';
+// **FIX:** Changed the import to use the standard Prisma package.
 import { PrismaClient } from '../../../generated/prisma/index.js';
 import { GoogleGenAI, Modality } from "@google/genai";
 
@@ -14,13 +15,10 @@ const CUSTOM_USER_AGENT = "my-blog-generator-app:v2.0 (by /u/Jackfruitstricking)
 
 /**
  * Extracts the subreddit and post ID from a Reddit URL.
- * @param url The full URL of the Reddit post.
- * @returns An object with subreddit and postId, or null if the URL is invalid.
  */
 function extractRedditInfo(url: string): { subreddit: string; postId: string } | null {
   try {
     const pathParts = new URL(url).pathname.split('/');
-    // Example URL: /r/technology/comments/1c3a2b1/post_title/
     const commentsIndex = pathParts.findIndex(part => part === 'comments');
     
     if (commentsIndex > 1 && pathParts.length > commentsIndex + 1) {
@@ -128,7 +126,7 @@ async function generateBlogContent(title: string, subreddit: string, selftext: s
 
   try {
     const response = await ai.models.generateContent({
-        model: "gemini-1.5-flash",
+        model: "gemini-2.5-flash",
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
     });
     const responseText = response.text;
@@ -176,7 +174,7 @@ async function generateImageWithGemini(promptText: string): Promise<string> {
 /**
  * Saves the generated blog post to the database.
  */
-async function saveBlog(blogData: { title: string; metaDescription: string; content: string; image: string; topic: string }) {
+async function saveBlog(blogData: { title: string; metaDescription: string; content: string; image: string; topic: string; isPrivate: boolean; isArchived: boolean; }) {
   try {
     const blog = await prisma.blog.create({ data: blogData });
     return blog;
@@ -194,10 +192,10 @@ async function saveBlog(blogData: { title: string; metaDescription: string; cont
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const redditUrl: string = body.url;
+    const redditUrl: string = body.redditUrl;
 
     if (!redditUrl) {
-      return NextResponse.json({ success: false, error: 'Request body must contain a "url" key.' }, { status: 400 });
+      return NextResponse.json({ success: false, error: 'Request body must contain a "redditUrl" key.' }, { status: 400 });
     }
 
     const redditInfo = extractRedditInfo(redditUrl);
@@ -217,7 +215,7 @@ export async function POST(request: NextRequest) {
 
     if (exists) {
       console.log(`A blog for this post already exists: ${post.title}`);
-      return NextResponse.json({ success: false, message: 'A blog for this post already exists.' }, { status: 409 });
+      return NextResponse.json({ success: false, error: 'A blog for this post already exists.' }, { status: 409 });
     }
 
     const comments = await getComments(post.subreddit, post.id);
@@ -227,7 +225,7 @@ export async function POST(request: NextRequest) {
       throw new Error(`Failed to generate blog content for "${post.title}".`);
     }
 
-    const imagePrompt = `Create a visually stunning, high-quality 3D rendered conceptual art piece for a tech blog. The image should be abstract, representing the core themes of this title: "${blogContent.title}". Focus on a modern, clean aesthetic. Avoid including any text in the image.`;
+    const imagePrompt = `Create a visually stunning, quality 3D rendered photo for a tech blog. The image should be precise and artistic, representing the core themes of this title: "${blogContent.title}". Focus on a modern, clean aesthetic.`;
     const image = await generateImageWithGemini(imagePrompt);
 
     const savedBlog = await saveBlog({
@@ -236,6 +234,8 @@ export async function POST(request: NextRequest) {
       content: blogContent.content,
       image: image || "",
       topic: post.subreddit,
+      isPrivate: false, // Default to public
+      isArchived: false, // Default to not archived
     });
 
     if (savedBlog) {
