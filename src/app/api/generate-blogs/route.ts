@@ -207,7 +207,8 @@ async function generateBlogContent(
       "title": "Your Catchy Title",
       "metaDescription": "Your Meta Description",
       "content": "Your blog content with HTML tags."
-    }`;
+    }
+    IMPORTANT: The entire response must be a single, valid JSON object. Ensure all string values, especially the "content" field, have properly escaped double quotes (e.g., use \\" for quotes inside the string).`;
 
   try {
     const response = await ai.models.generateContent({

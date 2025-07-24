@@ -122,14 +122,20 @@ async function generateBlogContent(title: string, subreddit: string, selftext: s
     3.  Structure the content with headings (<h2>), paragraphs (<p>), and bullet points (<ul><li>).
     4.  Include a "Key Takeaways" section at the end.
     5.  At the bottom, add a "Source" section with a link to the original Reddit post: <a href="${postUrl}" target="_blank" rel="noopener noreferrer">${postUrl}</a>
-    Return as a JSON object: { "title": "...", "metaDescription": "...", "content": "..." }`;
+    Return as a JSON object: { "title": "...", "metaDescription": "...", "content": "..." }
+    IMPORTANT: The entire response must be a single, valid JSON object. Ensure all string values, especially the "content" field, have properly escaped double quotes (e.g., use \\" for quotes inside the string).`;
 
   try {
     const response = await ai.models.generateContent({
         model: "gemini-2.5-flash",
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
     });
-    const responseText = response.text;
+    const responseText = response.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (!responseText) {
+        throw new Error("No text found in the response from Gemini.");
+    }
+    
     let cleanedText = responseText.replace(/```json|```/g, '').trim();
     const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error("No JSON object found in Gemini's response.");
@@ -156,11 +162,15 @@ async function generateImageWithGemini(promptText: string): Promise<string> {
         contents: [{ parts: [{ text: promptText }] }],
         config: { responseModalities: [Modality.TEXT, Modality.IMAGE] },
     });
-    for (const part of response.candidates[0].content.parts) {
-        if (part.inlineData && part.inlineData.data) {
-            const imageData = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
-            console.log("Successfully generated image and created data URI.");
-            return imageData;
+    const parts = response.candidates?.[0]?.content?.parts;
+
+    if (parts) {
+        for (const part of parts) {
+            if (part.inlineData && part.inlineData.data) {
+                const imageData = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+                console.log("Successfully generated image and created data URI.");
+                return imageData;
+            }
         }
     }
     console.error("No image data found in the Gemini response.");
