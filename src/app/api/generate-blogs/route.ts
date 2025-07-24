@@ -96,7 +96,7 @@ async function getRandomTopics() {
     
     const endpoints = [
       `https://www.reddit.com/r/${sub}/hot.json?limit=25`,
-      `https://www.reddit.com/r/${sub}/top.json?t=day&limit=25`,
+      `https://www.reddit.com/r/${sub}/rising.json?t=day&limit=25`,
       `https://www.reddit.com/r/${sub}/new.json?limit=25`
     ];
       
@@ -215,7 +215,12 @@ async function generateBlogContent(
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
     });
     
-    const responseText = response.text;
+    const responseText = response.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (!responseText) {
+        throw new Error("No text found in the response from Gemini.");
+    }
+    
     let cleanedText = responseText.replace(/```json|```/g, '').trim();
 
     const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
@@ -255,11 +260,15 @@ async function generateImageWithGemini(promptText: string): Promise<string> {
             },
         });
 
-        for (const part of response.candidates[0].content.parts) {
-            if (part.inlineData && part.inlineData.data) {
-                const imageData = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
-                console.log("Successfully generated image and created data URI.");
-                return imageData;
+        const parts = response.candidates?.[0]?.content?.parts;
+
+        if (parts) {
+            for (const part of parts) {
+                if (part.inlineData && part.inlineData.data) {
+                    const imageData = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+                    console.log("Successfully generated image and created data URI.");
+                    return imageData;
+                }
             }
         }
         
