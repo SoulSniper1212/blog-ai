@@ -23,6 +23,10 @@ export default function AdminPage() {
   const [isGeneratingFromUrl, setIsGeneratingFromUrl] = useState(false);
   const [urlResult, setUrlResult] = useState<any>(null);
   const [urlError, setUrlError] = useState<string | null>(null);
+  const [topic, setTopic] = useState('');
+  const [isGeneratingFromTopic, setIsGeneratingFromTopic] = useState(false);
+  const [topicResult, setTopicResult] = useState<any>(null);
+  const [topicError, setTopicError] = useState<string | null>(null);
   
   // Blog management states
   const [blogs, setBlogs] = useState<BlogWithActions[]>([]);
@@ -203,6 +207,37 @@ export default function AdminPage() {
       setUrlError(err.message || 'An error occurred');
     } finally {
       setIsGeneratingFromUrl(false);
+    }
+  };
+
+  const generateFromTopic = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsGeneratingFromTopic(true);
+    setTopicError(null);
+    setTopicResult(null);
+
+    try {
+      const response = await fetch('/api/generate-from-topic', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ topic }),
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        setTopicResult(data);
+        setTopic(''); // Clear the input on success
+        loadBlogs(); // Refresh the blog list
+      } else {
+        setTopicError(data.error || 'Failed to generate blog from topic');
+      }
+    } catch (err: any) {
+      setTopicError(err.message || 'An error occurred');
+    } finally {
+      setIsGeneratingFromTopic(false);
     }
   };
 
@@ -415,7 +450,7 @@ export default function AdminPage() {
                   id="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900"
                   placeholder="Enter admin password"
                   required
                 />
@@ -519,13 +554,13 @@ export default function AdminPage() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                       </svg>
                     </div>
-                    <input
-                      type="text"
-                      placeholder="Search blogs..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-full"
-                    />
+                          <input
+                            type="text"
+                            placeholder="Title"
+                            value={editForm.title}
+                            onChange={(e) => setEditForm({...editForm, title: e.target.value})}
+                            className="px-3 py-2 border border-gray-300 rounded-md text-gray-900"
+                          />
                   </div>
                   <select
                     value={filterArchived}
@@ -580,31 +615,31 @@ export default function AdminPage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <input
                             type="text"
-                            placeholder="Title"
-                            value={editForm.title}
-                            onChange={(e) => setEditForm({...editForm, title: e.target.value})}
-                            className="px-3 py-2 border border-gray-300 rounded-md"
+                            placeholder="Topic"
+                            value={editForm.topic}
+                            onChange={(e) => setEditForm({...editForm, topic: e.target.value})}
+                            className="px-3 py-2 border border-gray-300 rounded-md text-gray-900"
                           />
                           <input
                             type="text"
                             placeholder="Topic"
                             value={editForm.topic}
                             onChange={(e) => setEditForm({...editForm, topic: e.target.value})}
-                            className="px-3 py-2 border border-gray-300 rounded-md"
+                            className="px-3 py-2 border border-gray-300 rounded-md text-gray-900"
                           />
                         </div>
                         <textarea
                           placeholder="Meta Description"
                           value={editForm.metaDescription}
                           onChange={(e) => setEditForm({...editForm, metaDescription: e.target.value})}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900"
                           rows={2}
                         />
                         <textarea
                           placeholder="Content (HTML)"
                           value={editForm.content}
                           onChange={(e) => setEditForm({...editForm, content: e.target.value})}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900"
                           rows={6}
                         />
                         <input
@@ -612,7 +647,7 @@ export default function AdminPage() {
                           placeholder="Image URL"
                           value={editForm.image}
                           onChange={(e) => setEditForm({...editForm, image: e.target.value})}
-                          className="px-3 py-2 border border-gray-300 rounded-md"
+                          className="px-3 py-2 border border-gray-300 rounded-md text-gray-900"
                         />
                         <div className="flex items-center space-x-4">
                           <label className="flex items-center">
@@ -792,7 +827,7 @@ export default function AdminPage() {
                     placeholder="Title"
                     value={newBlogForm.title}
                     onChange={e => setNewBlogForm({ ...newBlogForm, title: e.target.value })}
-                    className="px-3 py-2 border border-gray-300 rounded-md"
+                    className="px-3 py-2 border border-gray-300 rounded-md text-gray-900"
                     required
                   />
                   <input
@@ -800,7 +835,7 @@ export default function AdminPage() {
                     placeholder="Topic"
                     value={newBlogForm.topic}
                     onChange={e => setNewBlogForm({ ...newBlogForm, topic: e.target.value })}
-                    className="px-3 py-2 border border-gray-300 rounded-md"
+                    className="px-3 py-2 border border-gray-300 rounded-md text-gray-900"
                     required
                   />
                 </div>
@@ -808,7 +843,7 @@ export default function AdminPage() {
                   placeholder="Meta Description"
                   value={newBlogForm.metaDescription}
                   onChange={e => setNewBlogForm({ ...newBlogForm, metaDescription: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900"
                   rows={2}
                   required
                 />
@@ -816,7 +851,7 @@ export default function AdminPage() {
                   placeholder="Content (HTML)"
                   value={newBlogForm.content}
                   onChange={e => setNewBlogForm({ ...newBlogForm, content: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900"
                   rows={6}
                   required
                 />
@@ -825,7 +860,7 @@ export default function AdminPage() {
                   placeholder="Image URL"
                   value={newBlogForm.image}
                   onChange={e => setNewBlogForm({ ...newBlogForm, image: e.target.value })}
-                  className="px-3 py-2 border border-gray-300 rounded-md"
+                  className="px-3 py-2 border border-gray-300 rounded-md text-gray-900"
                 />
                 <div className="flex items-center space-x-4">
                   <label className="flex items-center">
@@ -873,6 +908,74 @@ export default function AdminPage() {
               )}
             </div>
 
+            {/* Generate from Topic */}
+            <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                  <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M12 21v-1m0-16a8 8 0 100 16 8 8 0 000-16z" />
+                  </svg>
+                </div>
+                <h2 className="text-xl font-semibold text-gray-800">Generate from Topic</h2>
+              </div>
+              <p className="text-gray-600 mb-4">
+                Enter a topic or a title, and the AI will write a blog post for you.
+              </p>
+              
+              <form onSubmit={generateFromTopic} className="space-y-4">
+                <div>
+                  <label htmlFor="topic" className="block text-sm font-medium text-gray-700 mb-2">
+                    Blog Topic
+                  </label>
+                  <input
+                    type="text"
+                    id="topic"
+                    value={topic}
+                    onChange={(e) => setTopic(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                    placeholder="e.g., The Future of Artificial Intelligence"
+                    required
+                  />
+                </div>
+                
+                <button
+                  type="submit"
+                  disabled={isGeneratingFromTopic}
+                  className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                    isGeneratingFromTopic
+                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      : 'bg-orange-600 text-white hover:bg-orange-700'
+                  }`}
+                >
+                  {isGeneratingFromTopic ? 'Generating...' : 'Generate Blog'}
+                </button>
+              </form>
+
+              {topicError && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mt-4">
+                  <h3 className="text-red-800 font-medium">Error</h3>
+                  <p className="text-red-600 mt-1">{topicError}</p>
+                </div>
+              )}
+
+              {topicResult && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mt-4">
+                  <h3 className="text-green-800 font-medium">Success!</h3>
+                  <p className="text-green-600 mt-1 mb-3">{topicResult.message}</p>
+                  
+                  {topicResult.blog && (
+                    <div className="mt-4">
+                      <h4 className="text-green-800 font-medium mb-2">Generated Blog:</h4>
+                      <div className="bg-white rounded p-3">
+                        <p className="font-medium text-gray-900">{topicResult.blog.title}</p>
+                        <p className="text-sm text-gray-600 mt-1">{topicResult.blog.metaDescription}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
             {/* Generate from Reddit URL */}
             <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
               <div className="flex items-center space-x-3 mb-6">
@@ -897,7 +1000,7 @@ export default function AdminPage() {
                     id="redditUrl"
                     value={redditUrl}
                     onChange={(e) => setRedditUrl(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900"
                     placeholder="https://www.reddit.com/r/technology/comments/..."
                     required
                   />
@@ -1024,4 +1127,4 @@ export default function AdminPage() {
       </div>
     </div>
   );
-} 
+}
