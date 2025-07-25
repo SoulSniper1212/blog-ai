@@ -11,7 +11,7 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
 const SUBREDDITS = ["technology", "artificial", "cybersecurity", "saas"];
 
 // A unique user-agent is required for unauthenticated requests.
-const CUSTOM_USER_AGENT = "my-blog-generator-app:v2.0 (by /u/Jackfruitstricking)";
+const CUSTOM_USER_AGENT = "windows:aitechblog:2025.7.25 (by /u/jackfruitstriking422)";
 
 // Interfaces for Reddit API responses
 interface RedditPost {
