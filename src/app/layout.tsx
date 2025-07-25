@@ -54,6 +54,16 @@ export default function RootLayout({
         <meta name="robots" content="index, follow" />
         <meta name="theme-color" content="#2563eb" />
         {/* Open Graph & Twitter tags are handled by next/metadata */}
+        {/* Google tag (gtag.js) */}
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-ER48SJBJWY"></script>
+        <script>
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-ER48SJBJWY');
+          `}
+        </script>
       </head>
       <body className="antialiased font-sans">
         {children}
