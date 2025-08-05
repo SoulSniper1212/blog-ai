@@ -1,36 +1,166 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI Tech Blog
 
-## Getting Started
+An AI-powered tech blog that automatically generates content from trending Reddit topics. Built with Next.js, TypeScript, and Google's Generative AI.
 
-First, run the development server:
+## 🚀 Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **AI-Generated Content**: Automatically creates blog posts from trending Reddit topics
+- **Multi-Source Aggregation**: Fetches content from r/technology, r/artificial, r/cybersecurity, and r/saas
+- **AI-Generated Images**: Creates relevant visuals using Google's Gemini AI
+- **Responsive Design**: Modern, mobile-friendly interface built with Tailwind CSS
+- **Database Storage**: PostgreSQL database with Prisma ORM
+- **Admin Panel**: Manage blog posts (archive, make private)
+- **SEO Optimized**: Meta descriptions and proper page structure
+
+## 🛠️ Tech Stack
+
+- **Framework**: Next.js 15 with App Router
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS 4
+- **Database**: PostgreSQL with Prisma ORM
+- **AI**: Google Generative AI (Gemini)
+- **Deployment**: Vercel-ready
+- **Content Sources**: Reddit API integration
+
+## 📋 Prerequisites
+
+- Node.js 18+ 
+- PostgreSQL database
+- Google AI API key (Gemini)
+
+## 🚀 Quick Start
+
+1. **Clone the repository**
+   ```bash
+   git clone <your-repo-url>
+   cd blog-ai
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables**
+   Create a `.env.local` file:
+   ```env
+   DATABASE_URL="postgresql://username:password@localhost:5432/blog_ai"
+   GEMINI_API_KEY="your-google-ai-api-key"
+   ```
+
+4. **Set up the database**
+   ```bash
+   npx prisma generate
+   npx prisma db push
+   ```
+
+5. **Run the development server**
+   ```bash
+   npm run dev
+   ```
+
+6. **Open your browser**
+   Navigate to [http://localhost:3000](http://localhost:3000)
+
+## 🔧 API Endpoints
+
+### Blog Management
+- `GET /api/blogs` - Fetch blog posts with pagination
+- `POST /api/blogs` - Create new blog post
+- `PUT /api/blogs/[id]` - Update blog post
+- `DELETE /api/blogs/[id]` - Delete blog post
+
+### Content Generation
+- `POST /api/generate-blogs` - Generate new blog posts from Reddit
+- `POST /api/generate-from-topic` - Generate blog from specific topic
+- `POST /api/generate-from-url` - Generate blog from URL content
+
+### Authentication
+- `POST /api/auth` - Admin authentication
+
+## 📁 Project Structure
+
+```
+blog-ai/
+├── src/
+│   ├── app/                 # Next.js App Router
+│   │   ├── api/            # API routes
+│   │   ├── admin/          # Admin panel
+│   │   ├── blog/           # Blog post pages
+│   │   └── page.tsx        # Homepage
+│   ├── components/         # React components
+│   ├── lib/               # Utilities
+│   └── types/             # TypeScript types
+├── prisma/                # Database schema & migrations
+├── public/                # Static assets
+└── package.json
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🎯 Key Features Explained
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### AI Content Generation
+The system automatically:
+1. Fetches trending posts from specified subreddits
+2. Extracts comments and context
+3. Generates comprehensive blog posts using Google's Gemini AI
+4. Creates relevant images for each post
+5. Stores everything in the database
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Content Sources
+- **Technology**: Latest tech trends and innovations
+- **Artificial Intelligence**: AI/ML developments and discussions
+- **Cybersecurity**: Security news and best practices
+- **SaaS**: Software-as-a-Service industry insights
 
-## Learn More
+### Admin Features
+- Archive/unarchive posts
+- Make posts private/public
+- View all posts with filtering
+- Manual content generation
 
-To learn more about Next.js, take a look at the following resources:
+## 🔒 Environment Variables
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `DATABASE_URL` | PostgreSQL connection string | Yes |
+| `GEMINI_API_KEY` | Google AI API key | Yes |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🚀 Deployment
 
-## Deploy on Vercel
+### Vercel (Recommended)
+1. Connect your GitHub repository to Vercel
+2. Add environment variables in Vercel dashboard
+3. Deploy automatically on push to main branch
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Manual Deployment
+```bash
+npm run build
+npm start
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Reddit communities for inspiring content
+- Google Generative AI for content creation
+- Next.js team for the amazing framework
+- Vercel for seamless deployment
+
+## 📞 Support
+
+If you have any questions or need help, please open an issue in the repository.
+
+---
+
+**Note**: This project uses AI to generate content from Reddit discussions. We always credit original sources and maintain transparency about AI-generated content.
